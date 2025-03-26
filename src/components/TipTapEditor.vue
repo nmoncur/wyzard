@@ -2,13 +2,23 @@
   <div>
     <div class="mt-2 control-group bg-white p-2 border-gray-300 shadow-sm dark:border-gray-700 dark:bg-slate-900 rounded-md shadow-sm">
       <div class="dark:bg-slate-300 rounded-md dark:shadow-sm">
-        <bubble-menu v-if="editor" :editor="editor" :tippy-options="{ duration: 100 }">
-          <div class="bg-white rounded-lg shadow-sm p-2 flex items-center gap-2">
-            <button @click="setLink">Hyperlink</button>
-            <button @click="editor?.chain().focus().toggleBold().run()" :class="{ 'font-bold': editor?.isActive('bold') }">Bold</button>
-            <button @click="editor?.chain().focus().toggleItalic().run()" :class="{ 'font-bold font-italic': editor?.isActive('italic') }">Italic</button>
-            <button @click="editor?.chain().focus().toggleStrike().run()" :class="{ 'font-bold line-through': editor?.isActive('strike') }">Strikethrough</button>
-            <button @click="editor?.chain().focus().toggleUnderline().run()" :class="{ 'font-bold underline': editor?.isActive('underline') }">Underline</button>
+        <bubble-menu v-if="editor" :editor="editor" :tippy-options="{ duration: 100, maxWidth: 'none' }">
+          <div class="bubble-menu">
+            <button @click="setLink">
+              <LinkIcon class="w-4 h-4" />
+            </button>
+            <button @click="editor?.chain().focus().toggleBold().run()" :class="{ 'is-active': editor?.isActive('bold') }">
+              <BoldIcon class="w-4 h-4" />
+            </button>
+            <button @click="editor?.chain().focus().toggleItalic().run()" :class="{ 'is-active font-italic': editor?.isActive('italic') }">
+              <ItalicIcon class="w-4 h-4" />
+            </button>
+            <button @click="editor?.chain().focus().toggleStrike().run()" :class="{ 'is-active line-through': editor?.isActive('strike') }">
+              <StrikethroughIcon class="w-4 h-4" />
+            </button>
+            <button @click="editor?.chain().focus().toggleUnderline().run()" :class="{ 'is-active underline': editor?.isActive('underline') }">
+              <UnderlineIcon class="w-4 h-4" />
+            </button>
           </div>
         </bubble-menu>
         <editor-content :editor="editor" />
@@ -26,6 +36,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
 import { BubbleMenu, Editor as TapEditor, EditorContent } from '@tiptap/vue-3'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { BoldIcon, ItalicIcon, LinkIcon, StrikethroughIcon, UnderlineIcon } from '@heroicons/vue/24/outline'
 
 const { modelValue } = defineProps({
   modelValue: {
@@ -74,7 +85,11 @@ onMounted(() => {
       }),
       Underline,
     ],
-    content: modelValue,
+    content: `
+      <p>
+        Hey, try to select some text here. There will popup a menu for selecting some inline styles. Remember: you have full control about content and styling of this menu.
+      </p>
+    `,
     onUpdate: () => {
       // HTML
       $emit('update:modelValue', editor.value?.getHTML())
@@ -110,3 +125,23 @@ function setLink() {
   editor.value?.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
 }
 </script>
+<style>
+@reference '../assets/main.css';
+
+/* Bubble menu */
+.bubble-menu {
+  @apply bg-white shadow-sm rounded-md border border-gray-300 flex p-2;
+}
+.bubble-menu  button {
+  @apply bg-transparent px-2 py-1 rounded-md;
+}
+.bubble-menu  button:hover {
+      @apply bg-slate-300;
+}
+.bubble-menu  button.is-active {
+  @apply bg-slate-100;
+}
+.bubble-menu  button.is-active:hover {
+  @apply bg-slate-50;
+}
+</style>
