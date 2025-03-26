@@ -49,10 +49,45 @@
                   </ListboxOptions>
                 </transition>
             </Listbox>
-
+            <button @click="imageModalOpen = true">
+              <PhotoIcon class="w-4 h-4" />
+            </button>
           </div>
         </floating-menu>
         <editor-content :editor="editor" />
+        <TransitionRoot as="template" :show="imageModalOpen">
+          <Dialog class="relative z-10" @close="imageModalOpen = false">
+            <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+              <div class="fixed inset-0 bg-gray-500/75 transition-opacity" />
+            </TransitionChild>
+
+            <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+              <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                  <DialogPanel class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+                    <div>
+                      <ul role="list" class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
+                        <li @click="pickImage(file.source)" v-for="file in files" :key="file.source" class="relative">
+                          <div class="group overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                            <img :src="file.source" alt="" class="pointer-events-none aspect-[10/7] object-cover group-hover:opacity-75" />
+                            <button type="button" class="absolute inset-0 focus:outline-none">
+                              <span class="sr-only">View details for {{ file.title }}</span>
+                            </button>
+                          </div>
+                          <p class="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">{{ file.title }}</p>
+                          <p class="pointer-events-none block text-sm font-medium text-gray-500">{{ file.size }}</p>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:gap-3">
+                      <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:col-start-1 sm:mt-0" @click="imageModalOpen = false" ref="cancelButtonRef">Cancel</button>
+                    </div>
+                  </DialogPanel>
+                </TransitionChild>
+              </div>
+            </div>
+          </Dialog>
+        </TransitionRoot>
       </div>
     </div>
     <a @click="showOutput = !showOutput" class="block cursor-pointer text-sm text-gray-500 my-10">{{ showOutput ? 'Hide' : 'Show' }} Output</a>
@@ -64,6 +99,7 @@
 </template>
 <script setup lang="ts">
 import Highlight from '@tiptap/extension-highlight'
+import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
@@ -74,8 +110,44 @@ import TableHeader from '@tiptap/extension-table-header'
 import TableRow from '@tiptap/extension-table-row'
 import { BubbleMenu, Editor as TapEditor, EditorContent, FloatingMenu } from '@tiptap/vue-3'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { BoldIcon, BugAntIcon, H1Icon, H2Icon, ItalicIcon, LinkIcon, ListBulletIcon, StrikethroughIcon, UnderlineIcon, ViewColumnsIcon } from '@heroicons/vue/24/outline'
-import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import { BoldIcon, BugAntIcon, H1Icon, H2Icon, ItalicIcon, LinkIcon, ListBulletIcon, PhotoIcon, StrikethroughIcon, UnderlineIcon, ViewColumnsIcon } from '@heroicons/vue/24/outline'
+import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions, Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+
+const imageModalOpen = ref(false)
+const files = [
+  {
+    title: 'Placeholder',
+    size: '0.9 MB',
+    source:
+      'https://placehold.co/600x400',
+  },
+  {
+    title: 'IMG_4985.HEIC',
+    size: '3.9 MB',
+    source:
+      'https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80',
+  },
+  {
+    title: 'IMG_4986.HEIC',
+    size: '6.9 MB',
+    source:
+      'https://images.unsplash.com/photo-1741603558151-e1f3822051bc?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  },
+  {
+    title: 'IMG_4987.HEIC',
+    size: '2.9 MB',
+    source:
+      'https://images.unsplash.com/photo-1600585152220-90363fe7e115?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  },
+  {
+    title: 'IMG_3987.HEIC',
+    size: '2.9 MB',
+    source:
+      'https://images.unsplash.com/photo-1567496898669-ee935f5f647a?q=80&w=3424&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  },
+  // More files...
+]
+
 
 const layoutOptions = [
   { rows: 1, columns: 2, icon: BugAntIcon },
@@ -120,6 +192,7 @@ onMounted(() => {
       },
     },
     extensions: [
+      Image,
       StarterKit,
       Table.configure({
         resizable: true,
@@ -167,6 +240,12 @@ onMounted(() => {
 onBeforeUnmount(() => {
   editor.value?.destroy()
 })
+
+function pickImage(url: string) {
+  editor.value?.chain().focus().setImage({ src: url }).run()
+
+  imageModalOpen.value = false
+}
 
 // popup for setting href for links
 function setLink() {
