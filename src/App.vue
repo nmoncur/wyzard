@@ -38,7 +38,7 @@
       </header>
       <main>
         <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <!-- Your content -->
+          <TipTapEditor />
         </div>
       </main>
     </div>
@@ -47,6 +47,7 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline'
+import TipTapEditor from './components/TipTapEditor.vue'
 
 const navigation = [
   { name: 'TipTap', href: '#', current: true },
